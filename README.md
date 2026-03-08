@@ -1,4 +1,3 @@
-
 # FEEDBACK.ZONE
 
 *A public listening project.*
@@ -46,8 +45,10 @@ The pipeline is designed so that raw speech never touches a database. An AI mode
 feedback-zone/
 ├── index.html       — the call interface (served via QR code)
 ├── dashboard.html   — the public live dashboard
+├── poster.html      — print-ready A3 poster template with live editor
 ├── worker.js        — serverless backend (deploy to Cloudflare Workers)
-└── schema.sql       — database schema (run once in Supabase)
+├── schema.sql       — database schema (run once in Supabase)
+└── README.md        — this file
 ```
 
 ---
@@ -147,15 +148,30 @@ with the values from step 1.
 
 ### 5. Deploy to GitHub Pages
 
-1. Push all four files to a GitHub repository
+1. Push all six files to a GitHub repository
 2. Go to **Settings → Pages → Source → Deploy from branch → main → / (root)**
 3. Your app will be live at `https://yourusername.github.io/your-repo-name`
 
 ---
 
-### 6. Generate poster QR codes
+### 6. Print the posters
 
-Each physical poster gets its own URL with a location identifier:
+`poster.html` is a print-ready A3 template with a live editor built in. Open it in any browser to customise and print.
+
+**Editing for each location:**
+
+Open `poster.html` in a browser. Use the editor panel at the top to update:
+- **Headline** — the large display text
+- **Provocation** — the line that stops someone in the street
+- **Call to action** — the instruction beneath the QR code
+- **Location tag** — appears top-right (e.g. *North Quarter*)
+- **URL** — shown beneath the QR box
+
+Changes update the poster preview in real time.
+
+**Adding the QR code:**
+
+Each poster needs its own QR code pointing to a unique URL with a location identifier:
 
 ```
 https://yourusername.github.io/feedback-zone/?poster=city-centre
@@ -163,7 +179,17 @@ https://yourusername.github.io/feedback-zone/?poster=north-quarter
 https://yourusername.github.io/feedback-zone/?poster=riverside
 ```
 
-Generate a QR code for each URL using any free QR generator. The `poster` parameter flows automatically through the entire pipeline and appears as a filter on the dashboard.
+Generate a QR code for each URL using any free QR generator (qrcode.me, qr-code-generator.com). Then open `poster.html` in a text editor and find this comment:
+
+```html
+<!-- Replace this div with: <img src="your-qr-code.png" width="130" height="130" /> -->
+```
+
+Replace the placeholder div with an `<img>` tag pointing to your saved QR code image. Save, reopen in browser, and print.
+
+**Print settings:**
+
+File → Print → A3, black ink only, fit to page, no headers or footers. Scales to A4 if needed. The `poster` parameter flows automatically through the entire pipeline and appears as a location filter on the dashboard.
 
 ---
 
