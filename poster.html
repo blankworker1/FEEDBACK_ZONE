@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FEEDBACK.ZONE — Poster Template</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #e8e8e8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      font-family: 'DM Mono', monospace;
+      gap: 24px;
+    }
+
+    /* ── EDITOR CONTROLS (not printed) ──────────────────── */
+    .controls {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 20px 24px;
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .controls-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      color: #333;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .control-row label {
+      font-size: 11px;
+      color: #888;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .control-row input,
+    .control-row select,
+    .control-row textarea {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 8px 10px;
+      width: 100%;
+      color: #333;
+      background: #fafafa;
+    }
+
+    .control-row textarea { resize: vertical; min-height: 60px; }
+
+    .btn-print {
+      background: #111;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      align-self: flex-start;
+      margin-top: 4px;
+    }
+
+    .btn-print:hover { background: #333; }
+
+    .print-note {
+      font-size: 11px;
+      color: #aaa;
+      line-height: 1.6;
+    }
+
+    /* ── POSTER ──────────────────────────────────────────── */
+    /* A3 at 96dpi screen preview = 794px × 1123px           */
+    /* At print (150dpi) scales to true A3                   */
+    .poster-wrap {
+      width: 680px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .poster {
+      width: 680px;
+      height: 960px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      padding: 60px 60px 52px;
+    }
+
+    /* Top rule */
+    .poster-rule-top {
+      width: 100%;
+      height: 2px;
+      background: #111;
+      margin-bottom: 40px;
+      flex-shrink: 0;
+    }
+
+    /* Wordmark row */
+    .poster-wordmark-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+
+    .poster-wordmark {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.25em;
+      color: #111;
+      text-transform: uppercase;
+    }
+
+    .poster-wordmark span {
+      opacity: 0.35;
+    }
+
+    .poster-location {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #aaa;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+
+    /* Main headline */
+    .poster-headline {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 96px;
+      line-height: 0.92;
+      letter-spacing: -0.03em;
+      color: #111;
+      margin-top: auto;
+      margin-bottom: 0;
+      flex-shrink: 0;
+      word-break: break-word;
+      hyphens: auto;
+    }
+
+    /* Subline / provocation */
+    .poster-subline {
+      font-family: 'DM Mono', monospace;
+      font-weight: 400;
+      font-size: 17px;
+      line-height: 1.45;
+      color: #111;
+      margin-top: 28px;
+      margin-bottom: 0;
+      flex-shrink: 0;
+      max-width: 460px;
+      letter-spacing: 0.01em;
+    }
+
+    /* Divider before QR zone */
+    .poster-rule-mid {
+      width: 100%;
+      height: 1px;
+      background: #ddd;
+      margin-top: 36px;
+      margin-bottom: 32px;
+      flex-shrink: 0;
+    }
+
+    /* QR zone */
+    .poster-qr-zone {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-shrink: 0;
+      gap: 28px;
+    }
+
+    .poster-qr-instructions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .poster-cta {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      line-height: 1.2;
+      color: #111;
+      letter-spacing: -0.01em;
+    }
+
+    .poster-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .poster-step {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: #888;
+      letter-spacing: 0.04em;
+      display: flex;
+      gap: 8px;
+    }
+
+    .poster-step-num {
+      color: #bbb;
+      flex-shrink: 0;
+    }
+
+    .poster-privacy-line {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #bbb;
+      letter-spacing: 0.06em;
+      margin-top: 14px;
+    }
+
+    /* QR placeholder box */
+    .poster-qr-box {
+      width: 170px;
+      height: 170px;
+      border: 2px solid #111;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    /* Corner marks */
+    .poster-qr-box::before,
+    .poster-qr-box::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-color: #111;
+      border-style: solid;
+    }
+    .poster-qr-box::before { top: -2px; left: -2px; border-width: 3px 0 0 3px; }
+    .poster-qr-box::after  { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
+
+    .poster-qr-inner {
+      width: 130px;
+      height: 130px;
+      position: relative;
+    }
+
+    /* Simulated QR pattern — replace .poster-qr-inner contents with an <img> tag */
+    .qr-placeholder {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(10,1fr);
+      grid-template-rows: repeat(10,1fr);
+      gap: 2px;
+      opacity: 0.15;
+    }
+
+    .qr-placeholder div {
+      background: #111;
+      border-radius: 1px;
+    }
+
+    .poster-qr-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      color: #bbb;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    /* Bottom rule */
+    .poster-rule-bottom {
+      width: 100%;
+      height: 2px;
+      background: #111;
+      margin-top: 28px;
+      flex-shrink: 0;
+    }
+
+    /* ── PRINT STYLES ────────────────────────────────────── */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .controls { display: none; }
+      .poster-wrap { width: 100%; }
+      .poster {
+        width: 210mm;
+        height: 297mm;
+        padding: 18mm 18mm 16mm;
+        page-break-after: always;
+        box-shadow: none;
+      }
+      .poster-headline { font-size: 88px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── EDITOR CONTROLS ─────────────────────────────────── -->
+<div class="controls">
+  <div class="controls-title">Poster Editor</div>
+
+  <div class="control-row">
+    <label>Headline</label>
+    <input type="text" id="ctrl-headline" value="How are you, really?" />
+  </div>
+
+  <div class="control-row">
+    <label>Provocation</label>
+    <textarea id="ctrl-subline">Speak into the void.
+The void takes notes.</textarea>
+  </div>
+
+  <div class="control-row">
+    <label>Call to action</label>
+    <input type="text" id="ctrl-cta" value="Scan. Speak. Disappear." />
+  </div>
+
+  <div class="control-row">
+    <label>Location tag</label>
+    <input type="text" id="ctrl-location" value="North Quarter" />
+  </div>
+
+  <div class="control-row">
+    <label>URL (under QR)</label>
+    <input type="text" id="ctrl-url" value="feedback.zone/?poster=north-quarter" />
+  </div>
+
+  <button class="btn-print" onclick="window.print()">Print poster →</button>
+  <div class="print-note">
+    Replace the QR placeholder with your generated QR code image before printing.<br/>
+    Print at A3, black ink only, on white stock. Scale to fit if printing A4.
+  </div>
+</div>
+
+<!-- ── POSTER ──────────────────────────────────────────── -->
+<div class="poster-wrap">
+  <div class="poster" id="poster">
+
+    <div class="poster-rule-top"></div>
+
+    <div class="poster-wordmark-row">
+      <div class="poster-wordmark">FEEDBACK<span>.</span>ZONE</div>
+      <div class="poster-location" id="poster-location">North Quarter</div>
+    </div>
+
+    <div class="poster-headline" id="poster-headline">How are you,<br/>really?</div>
+
+    <div class="poster-subline" id="poster-subline">
+      Speak into the void.<br/>The void takes notes.
+    </div>
+
+    <div class="poster-rule-mid"></div>
+
+    <div class="poster-qr-zone">
+      <div class="poster-qr-instructions">
+        <div class="poster-cta" id="poster-cta">Scan. Speak. Disappear.</div>
+        <div class="poster-steps">
+          <div class="poster-step">
+            <span class="poster-step-num">01</span>
+            <span>Scan the QR code with your phone</span>
+          </div>
+          <div class="poster-step">
+            <span class="poster-step-num">02</span>
+            <span>Speak for a minute or two</span>
+          </div>
+          <div class="poster-step">
+            <span class="poster-step-num">03</span>
+            <span>Your voice is never recorded or stored</span>
+          </div>
+        </div>
+        <div class="poster-privacy-line">
+          Anonymous · Not recorded · No account needed
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="poster-qr-box">
+          <!-- Replace this div with: <img src="your-qr-code.png" width="130" height="130" /> -->
+          <div class="poster-qr-inner">
+            <div class="qr-placeholder" id="qr-placeholder"></div>
+          </div>
+        </div>
+        <div class="poster-qr-label" id="poster-url">feedback.zone</div>
+      </div>
+    </div>
+
+    <div class="poster-rule-bottom"></div>
+
+  </div>
+</div>
+
+<script>
+  // ── Generate fake QR texture for placeholder ──────────
+  const grid = document.getElementById('qr-placeholder');
+  const pattern = [
+    1,1,1,1,1,1,1,0,1,0,
+    1,0,0,0,0,0,1,0,0,1,
+    1,0,1,1,1,0,1,0,1,0,
+    1,0,1,1,1,0,1,0,0,1,
+    1,0,1,1,1,0,1,0,1,1,
+    1,0,0,0,0,0,1,0,1,0,
+    1,1,1,1,1,1,1,0,1,1,
+    0,0,0,0,0,0,0,0,0,1,
+    1,0,1,1,0,1,1,1,0,1,
+    0,1,0,1,0,0,0,1,1,0,
+  ];
+  pattern.forEach(v => {
+    const d = document.createElement('div');
+    d.style.opacity = v ? '1' : '0';
+    grid.appendChild(d);
+  });
+
+  // ── Live preview from controls ─────────────────────────
+  function bind(ctrlId, posterId, transform) {
+    const ctrl   = document.getElementById(ctrlId);
+    const target = document.getElementById(posterId);
+    if (!ctrl || !target) return;
+    ctrl.addEventListener('input', () => {
+      target.innerHTML = transform ? transform(ctrl.value) : ctrl.value;
+    });
+  }
+
+  bind('ctrl-headline', 'poster-headline', v => v.replace(/,\s*/g, ',<br/>'));
+  bind('ctrl-subline',  'poster-subline',  v => v.replace(/\n/g, '<br/>'));
+  bind('ctrl-cta',      'poster-cta');
+  bind('ctrl-location', 'poster-location');
+  bind('ctrl-url',      'poster-url');
+</script>
+
+</body>
+</html>
