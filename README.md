@@ -50,7 +50,7 @@ feedback-zone/
      poster.html       print-ready A3 poster template with live editor
      worker.js         serverless backend (deploy to Cloudflare Workers)
      schema.sql        database schema (run once in Supabase)
-     README.md    this file
+     README.md         this file
 ```
 
 Once deployed, the two public URLs will be:
