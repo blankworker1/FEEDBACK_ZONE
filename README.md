@@ -54,8 +54,8 @@ feedback-zone/
 ```
 
 Once deployed, the two public URLs will be:
-- Call interface: `https://yourusername.github.io/FEEDBACK_ZONE/`
-- Live dashboard: `https://yourusername.github.io/FEEDBACK_ZONE/dashboard.html`
+- Call interface: [`https://blankworker1.github.io/FEEDBACK_ZONE/`](https://blankworker1.github.io/feedback_zone)
+- Live dashboard: [`https://yourusername.github.io/FEEDBACK_ZONE/dashboard.html`](https://blankworker1.github.io/feedback_zone/dashboard.html)
 
 ---
 
