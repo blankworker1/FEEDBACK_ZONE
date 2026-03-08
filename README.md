@@ -189,7 +189,7 @@ with the values from step 1.
 
 ### 7. Print the posters
 
-`poster.html` is a print-ready A3 template with a live editor built in. Open it in any browser to customise, add your QR code, and download.
+[`poster.html`]( https://blankworker1.github.io/FEEDBACK_ZONE/poster.html) is a print-ready A3 template with a live editor built in. Open it in any browser to customise, add your QR code, and download.
 
 **Editing for each location:**
 
