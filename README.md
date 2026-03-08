@@ -194,10 +194,10 @@ with the values from step 1.
 **Editing for each location:**
 
 Open `poster.html` in a browser. Use the editor panel at the top to update:
-- **Headline** â€” the large display text
-- **Provocation** â€” the line that stops someone in the street
-- **Call to action** â€” the instruction beneath the QR code
-- **Location tag** â€” appears top-right (e.g. *North Quarter*)
+- **Headline** the large display text
+- **Provocation** the line that stops someone in the street
+- **Call to action**  the instruction beneath the QR code
+- **Location tag**  appears top-right (e.g. *North Quarter*)
 
 Changes update the poster preview in real time.
 
@@ -308,10 +308,10 @@ At modest scale, the only meaningful cost is ElevenLabs call time.
 
 Features deliberately held back for future versions:
 
-- **Real-time scrolling feed** â€” anonymised snippets surfacing live on the dashboard
-- **Map visualisation** â€” sentiment and theme distribution plotted by poster location across the city
-- **Multi-day archive view** â€” trends across days or weeks
-- **Embeddable widget** â€” dashboard panels usable in external sites or exhibition contexts
+- **Real-time scrolling feed**  anonymised snippets surfacing live on the dashboard
+- **Map visualisation** sentiment and theme distribution plotted by poster location across the city
+- **Multi-day archive view** trends across days or weeks
+- **Embeddable widget** dashboard panels usable in external sites or exhibition contexts
 
 ---
 
