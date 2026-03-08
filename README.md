@@ -6,7 +6,7 @@
 
 ---
 
-FEEDBACK.ZONE is an anonymous voice art installation that turns the street into a confessional. Posters mounted across a city invite passersby to scan a QR code and speak â€” to say something they might not say anywhere else. No name. No account. No record of who called.
+FEEDBACK.ZONE is an anonymous voice art installation that turns the street into a confessional. Posters mounted across a city invite passersby to scan a QR code and speak to say something they might not say anywhere else. No name. No account. No record of who called.
 
 What remains is only the aggregate: mood patterns, recurring words, emotional weather. A portrait of a place, rendered in the voices of strangers.
 
@@ -16,9 +16,9 @@ What remains is only the aggregate: mood patterns, recurring words, emotional we
 
 A printed poster. A QR code. A phone to your ear.
 
-When someone scans the code, a brief AI-guided conversation begins â€” warm, unhurried, genuinely curious. The AI asks a simple opening question and listens. After a short exchange, the call ends. The voice disappears.
+When someone scans the code, a brief AI-guided conversation begins - warm, unhurried, genuinely curious. The AI asks a simple opening question and listens. After a short exchange, the call ends. The voice disappears.
 
-Across the city, a live dashboard accumulates what was felt, what was mentioned, what was on people's minds â€” without ever knowing who said it.
+Across the city, a live dashboard accumulates what was felt, what was mentioned, what was on people's minds without ever knowing who said it.
 
 ---
 
@@ -45,17 +45,17 @@ The pipeline is designed so that raw speech never touches a database. An AI mode
 
 ```
 feedback-zone/
-â”œâ”€â”€ index.html       â€” the call interface (served via QR code)
-â”œâ”€â”€ dashboard.html   â€” the public live dashboard (share this URL publicly)
-â”œâ”€â”€ poster.html      â€” print-ready A3 poster template with live editor
-â”œâ”€â”€ worker.js        â€” serverless backend (deploy to Cloudflare Workers)
-â”œâ”€â”€ schema.sql       â€” database schema (run once in Supabase)
-â””â”€â”€ README.md        â€” this file
+     index.html        the call interface (served via QR code)
+     dashboard.html    the public live dashboard (share this URL publicly)
+     poster.html       print-ready A3 poster template with live editor
+     worker.js         serverless backend (deploy to Cloudflare Workers)
+     schema.sql        database schema (run once in Supabase)
+     README.md    this file
 ```
 
 Once deployed, the two public URLs will be:
-- Call interface: `https://yourusername.github.io/feedback-zone/`
-- Live dashboard: `https://yourusername.github.io/feedback-zone/dashboard.html`
+- Call interface: `https://yourusername.github.io/FEEDBACK_ZONE/`
+- Live dashboard: `https://yourusername.github.io/FEEDBACK_ZONE/dashboard.html`
 
 ---
 
@@ -63,16 +63,18 @@ Once deployed, the two public URLs will be:
 
 ```
 Poster QR code
-     â†“
+     |
+Poster Editor
+     |
 index.html (GitHub Pages)
-     â†“
-ElevenLabs Conversational AI  â† voice conversation happens here
-     â†“ webhook (call ended)
-Cloudflare Worker             â† extracts sentiment + themes via Claude API
-     â†“
-Supabase                      â† stores anonymised row only
-     â†“
-dashboard.html (GitHub Pages) â† public, auto-refreshes every 30 seconds
+     |
+ElevenLabs Conversational AI   voice conversation happens here
+     | webhook (call ended)
+Cloudflare Worker              extracts sentiment + themes via Claude API
+     |
+Supabase                       stores anonymised row only
+     |
+dashboard.html (GitHub Pages)  public, auto-refreshes every 30 seconds
 ```
 
 All components either run on free tiers or cost a few cents per call at scale.
@@ -83,53 +85,53 @@ All components either run on free tiers or cost a few cents per call at scale.
 
 ### Prerequisites
 
-Accounts needed â€” all have free tiers:
-- [GitHub](https://github.com) â€” static hosting via GitHub Pages
-- [ElevenLabs](https://elevenlabs.io) â€” conversational AI voice
-- [Cloudflare](https://cloudflare.com) â€” serverless worker
-- [Supabase](https://supabase.com) â€” database
-- [Anthropic](https://console.anthropic.com) â€” Claude API for analysis
+Accounts needed all have free tiers:
+- [GitHub](https://github.com)  static hosting via GitHub Pages
+- [ElevenLabs](https://elevenlabs.io) conversational AI voice
+- [Cloudflare](https://cloudflare.com) serverless worker
+- [Supabase](https://supabase.com)  database
+- [Anthropic](https://console.anthropic.com)  Claude API for analysis
 
 ---
 
-### 1. Database â€” Supabase
+### 1. Database Supabase
 
 1. Create a new Supabase project
 2. Open the SQL Editor and run the contents of `schema.sql`
 3. Go to **Project Settings â†’ API** and copy:
    - Project URL
    - `anon` public key
-   - `service_role` secret key (for the worker only â€” keep this private)
+   - `service_role` secret key (for the worker only keep this private)
 
 ---
 
-### 2. Voice AI â€” ElevenLabs
+### 2. Voice AI - ElevenLabs
 
-1. Go to **Conversational AI â†’ Create Agent**
-2. Set a system prompt that establishes the tone. Example:
+1. Go to **Conversational AI Create Agent**
+3. Set a system prompt that establishes the tone. Example:
 
    > *You are a warm, unhurried listener called FEEDBACK.ZONE. Greet the caller simply and ask how they're feeling today. Listen to their response, reply with genuine curiosity â€” one or two exchanges at most. Then close the call gently with a thank you. Keep the whole conversation under two minutes.*
 
-3. Under **Security**, set Allowed Domains to your GitHub Pages URL
-4. Under **Webhooks**, add: `https://your-worker.workers.dev/webhook/elevenlabs`
-5. Add a conversation variable: name `poster_id`, mapped to URL parameter `poster`
-6. Copy your **Agent ID**
+4. Under **Security**, set Allowed Domains to your GitHub Pages URL
+5. Under **Webhooks**, add: `https://your-worker.workers.dev/webhook/elevenlabs`
+6. Add a conversation variable: name `poster_id`, mapped to URL parameter `poster`
+7. Copy your **Agent ID**
 
 ---
 
-### 3. Analysis API â€” Anthropic
+### 3. Analysis API - Anthropic
 
 The Cloudflare Worker uses Claude Haiku to extract sentiment and themes from each call transcript. You need an API key.
 
 1. Create an account at [console.anthropic.com](https://console.anthropic.com)
-2. Go to **API Keys â†’ Create Key** and copy the key somewhere safe â€” it's only shown once
+2. Go to **API Keys Create Key** and copy the key somewhere safe it's only shown once
 3. Add a small amount of credit (a few dollars covers thousands of calls at Haiku pricing)
 
 You'll add this key to the worker as a secret in the next step. Do not put it in any file that gets committed to GitHub.
 
 ---
 
-### 4. Backend worker â€” Cloudflare
+### 4. Backend worker - Cloudflare
 
 ```bash
 npm install -g wrangler
@@ -180,7 +182,7 @@ with the values from step 1.
 ### 6. Deploy to GitHub Pages
 
 1. Push all six files to a GitHub repository
-2. Go to **Settings â†’ Pages â†’ Source â†’ Deploy from branch â†’ main â†’ / (root)**
+2. Go to **Settings > Pages > Source > Deploy from branch > main > / (root)**
 3. Your app will be live at `https://yourusername.github.io/your-repo-name`
 
 ---
@@ -213,7 +215,7 @@ Generate a QR code for each URL using any free QR generator (qrcode.me, qr-code-
 
 **Downloading:**
 
-Click **â†“ Download poster** to save the poster as a PNG file. The filename is generated automatically from the location tag (e.g. `feedbackzone-north-quarter.png`). Send this file to a printer or print shop. Recommended: A3, black ink only, on white stock. Scales to A4 if needed.
+Click ** Download poster** to save the poster as a PNG file. The filename is generated automatically from the location tag (e.g. `feedbackzone-north-quarter.png`). Send this file to a printer or print shop. Recommended: A3, black ink only, on white stock. Scales to A4 if needed.
 
 The `poster` parameter in each QR code URL flows automatically through the entire pipeline and appears as a location filter on the dashboard.
 
@@ -223,8 +225,8 @@ The `poster` parameter in each QR code URL flows automatically through the entir
 
 1. Scan a QR code on a mobile device
 2. Complete the privacy screen, grant microphone access, have a conversation
-3. Check your Supabase table â€” a new anonymised row should appear within seconds of the call ending
-4. Open `dashboard.html` â€” data appears on the next 30-second refresh
+3. Check your Supabase table a new anonymised row should appear within seconds of the call ending
+4. Open `dashboard.html`  data appears on the next 30-second refresh
 
 ---
 
@@ -234,11 +236,11 @@ The app uses the browser microphone API, which behaves differently across mobile
 
 | Browser | Status | Notes |
 |---|---|---|
-| iOS Safari 15+ | âœ… Supported | Requires a user tap before audio plays â€” the app handles this |
-| Android Chrome 90+ | âœ… Supported | Works as expected |
-| Firefox Mobile 90+ | âœ… Supported | Works as expected |
-| iOS Chrome / Firefox | âš ï¸ Limited | These browsers use Safari's engine on iOS â€” mic access may vary |
-| In-app browsers | âŒ Avoid | Facebook, Instagram, LinkedIn browsers often block mic access |
+| iOS Safari 15+ | Supported | Requires a user tap before audio plays the app handles this |
+| Android Chrome 90+ | Supported | Works as expected |
+| Firefox Mobile 90+ | Supported | Works as expected |
+| iOS Chrome / Firefox | Limited | These browsers use Safari's engine on iOS mic access may vary |
+| In-app browsers | Avoid | Facebook, Instagram, LinkedIn browsers often block mic access |
 
 **For posters:** consider adding a small line of copy such as *"Open in Safari or Chrome"* if your audience is likely to scan from within a social media app.
 
@@ -250,7 +252,7 @@ This step is the most easily missed in the setup. Without it, all calls will arr
 
 In your ElevenLabs agent settings:
 
-1. Go to **Agent â†’ Variables**
+1. Go to **Agent Variables**
 2. Add a new variable: name it exactly `poster_id`
 3. Set the source to **URL parameter**
 4. Set the parameter name to `poster`
@@ -268,7 +270,7 @@ Safari on iOS requires a user gesture before accessing the microphone. The app i
 Check that the webhook URL in ElevenLabs matches your deployed worker URL exactly, including `https://` and the `/webhook/elevenlabs` path. Verify the `WEBHOOK_SECRET` value set in Cloudflare matches the secret header configured in ElevenLabs.
 
 **Supabase rows not appearing**
-The most likely cause is a Row Level Security policy blocking the write. Open the Supabase dashboard, go to **Table Editor â†’ calls**, and check if rows are appearing there directly. If they are, the issue is in the dashboard's read query. If they aren't, check the worker logs in the Cloudflare dashboard for error messages.
+The most likely cause is a Row Level Security policy blocking the write. Open the Supabase dashboard, go to **Table Editor calls**, and check if rows are appearing there directly. If they are, the issue is in the dashboard's read query. If they aren't, check the worker logs in the Cloudflare dashboard for error messages.
 
 **Dashboard showing no data**
 Confirm `YOUR_SUPABASE_URL` and `YOUR_SUPABASE_ANON_KEY` are correctly set in `dashboard.html`. The anon key is the public-facing one (not the service key). Also check that the Supabase RLS policy allows public reads for the last 24 hours as defined in `schema.sql`.
