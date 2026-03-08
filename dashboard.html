@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <title>FEEDBACK.ZONE — Live Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#0a0a0a; --surface:#111; --surface-2:#161616;
+      --border:#1e1e1e; --border-bright:#2a2a2a;
+      --accent:#c8f060; --accent-dim:rgba(200,240,96,.08); --accent-mid:rgba(200,240,96,.25);
+      --text:#f0f0f0; --text-muted:#555; --text-dim:#888;
+      --positive:#60f0a8; --neutral:#f0d060; --negative:#f07060;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+    body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh}
+    body::before{content:'';position:fixed;inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events:none;z-index:0;opacity:.35}
+    .layout{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:36px 24px 80px}
+
+    /* HEADER */
+    header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:20px}
+    .wordmark{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;margin-bottom:8px}
+    .wordmark span{color:var(--text-muted)}
+    .page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(26px,4vw,44px);line-height:1.1;letter-spacing:-.01em;margin-bottom:6px}
+    .page-date{font-size:11px;color:var(--text-muted);letter-spacing:.08em}
+    .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+    .live-badge{display:flex;align-items:center;gap:7px;background:rgba(96,240,168,.08);border:1px solid rgba(96,240,168,.2);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--positive);letter-spacing:.08em}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:var(--positive);animation:blink 1.4s ease-in-out infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+    .last-updated{font-size:10px;color:var(--text-muted);letter-spacing:.06em}
+
+    /* FILTER BAR */
+    .filter-bar{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap;align-items:center}
+    .filter-label{font-size:10px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;align-self:center;margin-right:2px}
+    .filter-group{display:flex;gap:4px;flex-wrap:wrap}
+    .filter-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:7px 13px;border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.06em;cursor:pointer;transition:all .15s ease;white-space:nowrap}
+    .filter-btn:hover{border-color:var(--border-bright);color:var(--text)}
+    .filter-btn.active{background:var(--accent-dim);border-color:var(--accent-mid);color:var(--accent)}
+    .filter-divider{width:1px;height:28px;background:var(--border);align-self:center;margin:0 4px}
+
+    /* STATS */
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px;margin-bottom:16px}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 18px;position:relative;overflow:hidden;transition:border-color .3s}
+    .stat-card:hover{border-color:var(--border-bright)}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent-mid),transparent);opacity:0;transition:opacity .3s}
+    .stat-card:hover::before{opacity:1}
+    .stat-label{font-size:10px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+    .stat-value{font-family:'Syne',sans-serif;font-weight:800;font-size:34px;line-height:1;letter-spacing:-.02em;margin-bottom:5px}
+    .stat-value.accent{color:var(--accent)} .stat-value.positive{color:var(--positive)}
+    .stat-sub{font-size:11px;color:var(--text-muted)}
+
+    /* PANEL */
+    .panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px}
+    .panel-label{font-size:10px;color:var(--text-muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px}
+
+    /* GRID LAYOUTS */
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+    .full-col{margin-bottom:14px}
+    @media(max-width:700px){.two-col{grid-template-columns:1fr}}
+
+    /* WORD CLOUD */
+    .word-cloud{display:flex;flex-wrap:wrap;gap:10px;align-items:center;min-height:140px;padding:4px 0}
+    .cloud-word{cursor:pointer;line-height:1;transition:color .2s,transform .2s;font-family:'Syne',sans-serif;font-weight:700;animation:fadeIn .5s ease both;position:relative}
+    .cloud-word:hover{color:var(--accent)!important;transform:scale(1.1)}
+    .cloud-word .wc-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--surface-2);border:1px solid var(--border-bright);border-radius:6px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:10}
+    .cloud-word:hover .wc-tip{opacity:1}
+    @keyframes fadeIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+
+    /* THEME BARS */
+    .theme-bars{display:flex;flex-direction:column;gap:11px}
+    .theme-row{display:grid;grid-template-columns:100px 1fr 32px;align-items:center;gap:10px}
+    .theme-name{font-size:11px;color:var(--text-dim);letter-spacing:.04em;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .theme-track{height:8px;background:var(--border);border-radius:4px;overflow:hidden;cursor:pointer}
+    .theme-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.4,0,.2,1);width:0%}
+    .theme-track:hover .theme-fill{filter:brightness(1.25)}
+    .theme-count{font-size:11px;color:var(--text-muted);text-align:right;font-variant-numeric:tabular-nums}
+
+    /* SENTIMENT */
+    .sent-score-row{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+    .sent-score-big{font-family:'Syne',sans-serif;font-weight:800;font-size:48px;line-height:1;letter-spacing:-.03em;transition:color 1s}
+    .sent-score-lbl{font-size:12px;color:var(--text-dim)}
+    .sent-meter{height:8px;background:var(--border);border-radius:6px;overflow:hidden;margin-bottom:10px}
+    .sent-fill{height:100%;border-radius:6px;transition:width 1.2s cubic-bezier(.4,0,.2,1),background 1.2s;width:0%}
+    .sent-axis{display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted)}
+    .dist-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:18px}
+    .dist-cell{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 10px;text-align:center}
+    .dist-val{font-family:'Syne',sans-serif;font-weight:700;font-size:22px;margin-bottom:4px}
+    .dist-lbl{font-size:10px;color:var(--text-muted);letter-spacing:.06em}
+
+    /* TIMELINE */
+    .tl-chart{display:flex;align-items:flex-end;gap:3px;height:72px;margin-top:12px}
+    .tl-bar{flex:1;border-radius:3px 3px 0 0;background:var(--accent-dim);border:1px solid var(--accent-mid);min-height:4px;transition:height .8s cubic-bezier(.4,0,.2,1);cursor:pointer;position:relative}
+    .tl-bar:hover{background:var(--accent-mid)}
+    .tl-bar .tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--surface-2);border:1px solid var(--border-bright);border-radius:6px;padding:3px 8px;font-size:10px;color:var(--text-dim);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
+    .tl-bar:hover .tip{opacity:1}
+    .tl-x{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--text-muted);letter-spacing:.04em}
+
+    /* POSTER LIST */
+    .poster-list{display:flex;flex-direction:column;gap:8px}
+    .poster-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:border-color .2s}
+    .poster-row:hover{border-color:var(--border-bright)}
+    .poster-row.selected{border-color:var(--accent-mid);background:var(--accent-dim)}
+    .poster-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:3px}
+    .poster-meta{font-size:10px;color:var(--text-muted)}
+    .poster-badge{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--accent)}
+
+    /* PRIVACY FOOTER */
+    .privacy-footer{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px;font-size:11px;color:var(--text-muted);letter-spacing:.05em;border-top:1px solid var(--border);margin-top:8px}
+    .privacy-footer::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--positive)}
+
+    /* LOADING */
+    .loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:50;transition:opacity .5s}
+    .loading-overlay.hidden{opacity:0;pointer-events:none}
+    .loading-spinner{width:36px;height:36px;border:1px solid var(--border-bright);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-text{font-size:11px;color:var(--text-muted);letter-spacing:.1em}
+
+    /* EMPTY */
+    .empty-state{text-align:center;padding:32px 20px;color:var(--text-muted)}
+    .empty-state .ei{font-size:32px;margin-bottom:10px}
+    .empty-state p{font-size:12px;line-height:1.7}
+
+    @media(max-width:600px){
+      .layout{padding:20px 14px 60px}
+      .stat-grid{grid-template-columns:1fr 1fr}
+      .dist-row{grid-template-columns:1fr;gap:6px}
+      .theme-row{grid-template-columns:80px 1fr 28px}
+    }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">LOADING LIVE DATA</div>
+</div>
+
+<div class="layout">
+
+  <header>
+    <div>
+      <div class="wordmark">FEEDBACK<span>.</span>ZONE</div>
+      <h1 class="page-title">Live<br/>Pulse</h1>
+      <div class="page-date" id="page-date">—</div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+      <div class="last-updated" id="last-updated">Loading…</div>
+    </div>
+  </header>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <span class="filter-label">Time</span>
+    <div class="filter-group" id="time-filters">
+      <button class="filter-btn" data-time="5">5 min</button>
+      <button class="filter-btn" data-time="15">15 min</button>
+      <button class="filter-btn" data-time="60">1 hr</button>
+      <button class="filter-btn active" data-time="1440">Today</button>
+    </div>
+    <div class="filter-divider" id="loc-divider" style="display:none"></div>
+    <span class="filter-label" id="loc-filter-label" style="display:none">Location</span>
+    <div class="filter-group" id="poster-filters"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total calls</div>
+      <div class="stat-value accent" id="stat-total">—</div>
+      <div class="stat-sub" id="stat-sub">in selected window</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg. duration</div>
+      <div class="stat-value" id="stat-dur">—</div>
+      <div class="stat-sub">min : sec average</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Overall mood</div>
+      <div class="stat-value positive" id="stat-mood">—</div>
+      <div class="stat-sub" id="stat-mood-sub">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active locations</div>
+      <div class="stat-value accent" id="stat-locs">—</div>
+      <div class="stat-sub">posters reporting</div>
+    </div>
+  </div>
+
+  <!-- Word cloud + Themes -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-label">Word frequency — size = mentions</div>
+      <div class="word-cloud" id="word-cloud">
+        <div class="empty-state"><div class="ei">💬</div><p>Waiting for calls…</p></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-label">Themes — aggregated categories</div>
+      <div class="theme-bars" id="theme-bars">
+        <div class="empty-state"><div class="ei">📊</div><p>Themes appear as calls come in.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sentiment -->
+  <div class="panel full-col">
+    <div class="panel-label">Sentiment — window average</div>
+    <div class="sent-score-row">
+      <div class="sent-score-big" id="sent-big">—</div>
+      <div class="sent-score-lbl">out of 100</div>
+    </div>
+    <div class="sent-meter"><div class="sent-fill" id="sent-fill"></div></div>
+    <div class="sent-axis"><span>Difficult</span><span>Neutral</span><span>Positive</span></div>
+    <div class="dist-row">
+      <div class="dist-cell">
+        <div class="dist-val" style="color:var(--positive)" id="dist-pos">—</div>
+        <div class="dist-lbl">POSITIVE</div>
+      </div>
+      <div class="dist-cell">
+        <div class="dist-val" style="color:var(--neutral)" id="dist-neu">—</div>
+        <div class="dist-lbl">NEUTRAL</div>
+      </div>
+      <div class="dist-cell">
+        <div class="dist-val" style="color:var(--negative)" id="dist-neg">—</div>
+        <div class="dist-lbl">DIFFICULT</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline + Poster breakdown -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-label" id="tl-label">Call volume — last 12 hours</div>
+      <div class="tl-chart" id="tl-chart"></div>
+      <div class="tl-x" id="tl-x"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-label">Calls by location — tap to filter</div>
+      <div class="poster-list" id="poster-list">
+        <div class="empty-state"><div class="ei">📍</div><p>No location data yet.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="privacy-footer">All data anonymised · No personal information collected or stored</div>
+</div>
+
+<script>
+// ── Config ──────────────────────────────────────────────
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const REFRESH_MS   = 30_000;
+const useMock      = SUPABASE_URL === 'YOUR_SUPABASE_URL';
+
+// ── State ───────────────────────────────────────────────
+let activeMinutes = 1440;
+let activePoster  = 'all';
+let allCalls      = [];
+
+// ── Mock data ───────────────────────────────────────────
+function getMockData() {
+  const posters  = ['city-centre','north-quarter','riverside','east-end'];
+  const kws      = ['stress','work','tired','hopeful','anxious','grateful','overwhelmed',
+                    'happy','lonely','supported','confused','calm','health','family',
+                    'money','future','change','community','noise','transport','housing',
+                    'safety','weather','busy','kids','sleep','friends','purpose'];
+  const themes   = ['Wellbeing','Work & Career','Community','Relationships',
+                    'Environment','Health','Finances','Future'];
+  const calls = [];
+  for (let i = 0; i < 62; i++) {
+    const hoursAgo = Math.random() * 11.5;
+    calls.push({
+      created_at: new Date(Date.now() - hoursAgo * 3600000).toISOString(),
+      sentiment_score: Math.floor(18 + Math.random() * 72),
+      keywords: Array.from({length:3}, () => kws[Math.floor(Math.random()*kws.length)]),
+      themes:   [themes[Math.floor(Math.random()*themes.length)]],
+      duration_seconds: Math.floor(55 + Math.random()*200),
+      poster_id: posters[Math.floor(Math.random()*posters.length)],
+    });
+  }
+  return calls;
+}
+
+// ── Fetch ───────────────────────────────────────────────
+async function fetchCalls() {
+  if (useMock) return getMockData();
+  const since = new Date(Date.now() - 24*60*60*1000).toISOString();
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/calls?created_at=gte.${since}&select=*&order=created_at.desc`,
+    { headers:{ apikey:SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }}
+  );
+  if (!res.ok) throw new Error('Fetch failed');
+  return res.json();
+}
+
+// ── Filter ──────────────────────────────────────────────
+function filterCalls(calls) {
+  const cutoff = new Date(Date.now() - activeMinutes * 60000);
+  return calls.filter(c =>
+    new Date(c.created_at) >= cutoff &&
+    (activePoster === 'all' || c.poster_id === activePoster)
+  );
+}
+
+// ── Render ──────────────────────────────────────────────
+function render() {
+  const calls = filterCalls(allCalls);
+  if (!calls.length) { renderEmpty(); return; }
+
+  const total   = calls.length;
+  const avgDur  = calls.reduce((s,c) => s+(c.duration_seconds||0),0)/total;
+  const avgSent = Math.round(calls.reduce((s,c) => s+(c.sentiment_score||50),0)/total);
+  const posters = new Set(calls.map(c=>c.poster_id).filter(Boolean));
+
+  // Stats
+  set('stat-total', total);
+  set('stat-dur', `${Math.floor(avgDur/60)}:${Math.round(avgDur%60).toString().padStart(2,'0')}`);
+  set('stat-locs', posters.size || '—');
+
+  const moodEl  = document.getElementById('stat-mood');
+  const moodSub = document.getElementById('stat-mood-sub');
+  if (avgSent>=65){ moodEl.textContent='Positive'; moodEl.style.color='var(--positive)'; moodSub.textContent='People are feeling good'; }
+  else if (avgSent>=40){ moodEl.textContent='Mixed'; moodEl.style.color='var(--neutral)'; moodSub.textContent='Varied responses'; }
+  else { moodEl.textContent='Difficult'; moodEl.style.color='var(--negative)'; moodSub.textContent='Challenging feelings present'; }
+
+  // Sentiment
+  const sentEl = document.getElementById('sent-big');
+  const fillEl = document.getElementById('sent-fill');
+  sentEl.textContent = avgSent;
+  requestAnimationFrame(() => { fillEl.style.width = `${avgSent}%`; });
+  const [grad, col] = avgSent>=65
+    ? ['linear-gradient(90deg,#60f0a8,#a8f060)','var(--positive)']
+    : avgSent>=40
+    ? ['linear-gradient(90deg,#f0d060,#f0a860)','var(--neutral)']
+    : ['linear-gradient(90deg,#f07060,#f04060)','var(--negative)'];
+  fillEl.style.background = grad;
+  sentEl.style.color = col;
+
+  const pos = calls.filter(c=>c.sentiment_score>=65).length;
+  const neu = calls.filter(c=>c.sentiment_score>=40&&c.sentiment_score<65).length;
+  const neg = calls.filter(c=>c.sentiment_score<40).length;
+  set('dist-pos',pos); set('dist-neu',neu); set('dist-neg',neg);
+
+  // Word cloud
+  const kwCount = {};
+  calls.forEach(c => (c.keywords||[]).forEach(k => { if(k) kwCount[k]=(kwCount[k]||0)+1; }));
+  const sortedKw = Object.entries(kwCount).sort((a,b)=>b[1]-a[1]).slice(0,32);
+  const maxKw    = sortedKw[0]?.[1]||1;
+
+  const cloud = document.getElementById('word-cloud');
+  if (!sortedKw.length) {
+    cloud.innerHTML = '<div class="empty-state"><p>No keywords yet.</p></div>';
+  } else {
+    const shuffled = [...sortedKw].sort(()=>Math.random()-.47);
+    cloud.innerHTML = shuffled.map(([word,count],i) => {
+      const r = count/maxKw;
+      const size = Math.round(11 + r*30);
+      const col2 = r>.7?'var(--accent)':r>.45?'var(--positive)':'var(--text-dim)';
+      const op   = (.45 + r*.55).toFixed(2);
+      return `<span class="cloud-word" style="font-size:${size}px;color:${col2};opacity:${op};animation-delay:${i*.03}s">
+        ${word}<span class="wc-tip">${word} · ${count}×</span></span>`;
+    }).join('');
+  }
+
+  // Theme bars
+  const themeCount = {};
+  calls.forEach(c => (c.themes||[]).forEach(t => { if(t) themeCount[t]=(themeCount[t]||0)+1; }));
+
+  // Keyword bucketing fallback
+  if (!Object.keys(themeCount).length) {
+    const buckets = {
+      'Wellbeing':    ['happy','calm','anxious','stress','tired','overwhelmed','hopeful','mood'],
+      'Work':         ['work','career','job','busy','money','finance','deadline'],
+      'Community':    ['community','people','neighbours','local','city','together'],
+      'Relationships':['family','friends','lonely','supported','love','kids','partner'],
+      'Environment':  ['noise','transport','housing','safety','weather','green','park'],
+      'Health':       ['health','sleep','exercise','food','mental','body','sick'],
+      'Future':       ['future','change','hope','worry','uncertain','plan','purpose'],
+    };
+    calls.forEach(c => (c.keywords||[]).forEach(kw => {
+      for (const [theme,words] of Object.entries(buckets)) {
+        if (words.includes(kw.toLowerCase())) { themeCount[theme]=(themeCount[theme]||0)+1; break; }
+      }
+    }));
+  }
+
+  const sortedThemes = Object.entries(themeCount).sort((a,b)=>b[1]-a[1]).slice(0,7);
+  const maxTheme     = sortedThemes[0]?.[1]||1;
+  const themeColors  = ['#c8f060','#60f0a8','#60c8f0','#a860f0','#f0c860','#f07060','#f060c8'];
+  const barsEl = document.getElementById('theme-bars');
+
+  if (!sortedThemes.length) {
+    barsEl.innerHTML = '<div class="empty-state"><div class="ei">📊</div><p>Themes appear as calls come in.</p></div>';
+  } else {
+    barsEl.innerHTML = sortedThemes.map(([theme,count],i) => `
+      <div class="theme-row">
+        <div class="theme-name" title="${theme}">${theme}</div>
+        <div class="theme-track" title="${count} mention${count!==1?'s':''}">
+          <div class="theme-fill" style="background:${themeColors[i%themeColors.length]};width:${(count/maxTheme)*100}%"></div>
+        </div>
+        <div class="theme-count">${count}</div>
+      </div>`).join('');
+  }
+
+  renderTimeline(calls);
+  renderPosters(calls);
+}
+
+function renderTimeline(calls) {
+  const N    = 12;
+  const bMin = activeMinutes/N;
+  const now  = Date.now();
+
+  const buckets = Array.from({length:N}, (_,i) => ({
+    count:0,
+    label:fmtLabel(new Date(now-(N-1-i)*bMin*60000))
+  }));
+
+  calls.forEach(c => {
+    const mAgo = (now - new Date(c.created_at))/60000;
+    const i    = N - 1 - Math.floor(mAgo/bMin);
+    if (i>=0 && i<N) buckets[i].count++;
+  });
+
+  const maxC   = Math.max(...buckets.map(b=>b.count),1);
+  const chart  = document.getElementById('tl-chart');
+  const xAxis  = document.getElementById('tl-x');
+
+  chart.innerHTML = buckets.map(b => `
+    <div class="tl-bar" style="height:${Math.max((b.count/maxC)*100,5)}%">
+      <div class="tip">${b.label} · ${b.count}</div>
+    </div>`).join('');
+
+  xAxis.innerHTML = [0,3,6,9,11].map(i=>`<span>${buckets[i]?.label||''}</span>`).join('');
+
+  document.getElementById('tl-label').textContent =
+    activeMinutes<=15  ? `Call volume — last ${activeMinutes} min` :
+    activeMinutes<=60  ? `Call volume — last hour` :
+    `Call volume — last 12 hours`;
+}
+
+function renderPosters(calls) {
+  const byPoster = {};
+  calls.forEach(c => {
+    const p = c.poster_id||'unknown';
+    if (!byPoster[p]) byPoster[p]={count:0,sentTotal:0};
+    byPoster[p].count++;
+    byPoster[p].sentTotal += c.sentiment_score||50;
+  });
+
+  const sorted  = Object.entries(byPoster).sort((a,b)=>b[1].count-a[1].count);
+  const listEl  = document.getElementById('poster-list');
+
+  if (!sorted.length||(sorted.length===1&&sorted[0][0]==='unknown')) {
+    listEl.innerHTML='<div class="empty-state"><div class="ei">📍</div><p>No location data yet.</p></div>';
+    return;
+  }
+
+  listEl.innerHTML = sorted.map(([id,d]) => {
+    const avg  = Math.round(d.sentTotal/d.count);
+    const mood = avg>=65?'↑':avg>=40?'→':'↓';
+    const col  = avg>=65?'var(--positive)':avg>=40?'var(--neutral)':'var(--negative)';
+    const name = id.replace(/-/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
+    return `<div class="poster-row ${activePoster===id?'selected':''}" onclick="setPoster('${id}')">
+      <div>
+        <div class="poster-name">${name}</div>
+        <div class="poster-meta">avg sentiment ${avg}&nbsp;<span style="color:${col}">${mood}</span></div>
+      </div>
+      <div class="poster-badge">${d.count}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderEmpty() {
+  ['stat-total','stat-dur','stat-mood','sent-big','dist-pos','dist-neu','dist-neg','stat-locs']
+    .forEach(id => set(id,'—'));
+  set('stat-mood-sub','No calls in this window');
+  document.getElementById('word-cloud').innerHTML =
+    '<div class="empty-state"><div class="ei">💬</div><p>No calls in this window.</p></div>';
+  document.getElementById('theme-bars').innerHTML =
+    '<div class="empty-state"><div class="ei">📊</div><p>No themes yet.</p></div>';
+  renderTimeline([]);
+}
+
+// ── Filter controls ─────────────────────────────────────
+document.getElementById('time-filters').addEventListener('click', e => {
+  const btn = e.target.closest('[data-time]');
+  if (!btn) return;
+  activeMinutes = parseInt(btn.dataset.time);
+  document.querySelectorAll('[data-time]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+});
+
+function setPoster(id) {
+  activePoster = activePoster===id ? 'all' : id;
+  render();
+}
+
+function buildPosterFilters(calls) {
+  const posters = [...new Set(calls.map(c=>c.poster_id).filter(Boolean))];
+  const bar = document.getElementById('poster-filters');
+  const div = document.getElementById('loc-divider');
+  const lbl = document.getElementById('loc-filter-label');
+
+  if (posters.length < 2) { div.style.display=lbl.style.display='none'; bar.innerHTML=''; return; }
+  div.style.display=lbl.style.display='';
+
+  bar.innerHTML = [['all','All'], ...posters.map(p=>[p, p.replace(/-/g,' ').replace(/\b\w/g,l=>l.toUpperCase())])]
+    .map(([val,label]) =>
+      `<button class="filter-btn ${activePoster===val?'active':''}" onclick="setPosterFilter('${val}')">${label}</button>`
+    ).join('');
+}
+
+function setPosterFilter(id) {
+  activePoster = id;
+  buildPosterFilters(allCalls); // rebuild to update active state
+  render();
+}
+
+// ── Helpers ─────────────────────────────────────────────
+function set(id,val) { const el=document.getElementById(id); if(el) el.textContent=val; }
+function fmtLabel(date) {
+  if (activeMinutes<=60) return date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const h=date.getHours();
+  return h===0?'12am':h<12?`${h}am`:h===12?'12pm':`${h-12}pm`;
+}
+
+// ── Init ────────────────────────────────────────────────
+async function refresh() {
+  try {
+    allCalls = await fetchCalls();
+    buildPosterFilters(allCalls);
+    render();
+    set('last-updated', `Updated ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
+  } catch(e) {
+    set('last-updated','Update failed — retrying');
+    console.error(e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  set('page-date', new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase());
+  await refresh();
+  document.getElementById('loading').classList.add('hidden');
+  setInterval(refresh, REFRESH_MS);
+});
+</script>
+</body>
+</html>
