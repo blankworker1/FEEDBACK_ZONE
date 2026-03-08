@@ -150,7 +150,7 @@ with the values from step 1.
 
 1. Push all six files to a GitHub repository
 2. Go to **Settings → Pages → Source → Deploy from branch → main → / (root)**
-3. Your app will be live at `https://yourusername.github.io/your-repo-name`
+3. Your app will be live at `https://blankworker1.github.io/FEEDBACK_ZONE/`
 
 ---
 
